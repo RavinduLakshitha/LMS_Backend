@@ -3,6 +3,7 @@ using LMS_Backend.Models;
 using LMS_Backend.Models.Books;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // Add this using directive
 
 namespace LMS_Backend.Controllers
 {
@@ -19,26 +20,24 @@ namespace LMS_Backend.Controllers
             this.dbContext = dbContext;
         }
 
-
         [HttpGet]
         public IActionResult GetAllBooks()
         {
-            return Ok(dbContext.Books.ToList());
+            return Ok(dbContext.Set<Book>().ToList()); // Use Set<Book>() instead of Books
         }
 
         [HttpGet]
         [Route("{id:guid}")]
-        public IActionResult GetBookById(Guid id) {
-            dbContext.Books.Find(id);
-            {
-                var book = dbContext.Books.Find(id);
+        public IActionResult GetBookById(Guid id)
+        {
+            var book = dbContext.Set<Book>().Find(id); // Use Set<Book>() instead of Books
 
-                if (book is null)
-                {
-                    return NotFound();
-                }
-                return Ok(book); }
+            if (book is null)
+            {
+                return NotFound();
             }
+            return Ok(book);
+        }
 
         [HttpPost]
         public IActionResult AddBook(AddBookDto addBookDto)
@@ -48,10 +47,9 @@ namespace LMS_Backend.Controllers
                 Name = addBookDto.Name,
                 Author = addBookDto.Author,
                 Description = addBookDto.Description,
-
             };
 
-            dbContext.Books.Add(bookEntity);
+            dbContext.Set<Book>().Add(bookEntity); // Use Set<Book>() instead of Books
             dbContext.SaveChanges();
 
             return Ok(bookEntity);
@@ -61,7 +59,7 @@ namespace LMS_Backend.Controllers
         [Route("{id:guid}")]
         public IActionResult UpdateBook(Guid id, UpdateBookDto updateBookDto)
         {
-            var book = dbContext.Books.Find(id);
+            var book = dbContext.Set<Book>().Find(id); // Use Set<Book>() instead of Books
             if (book is null)
             {
                 return NotFound();
@@ -75,13 +73,14 @@ namespace LMS_Backend.Controllers
 
         [HttpDelete]
         [Route("{id:guid}")]
-        public IActionResult DeleteBook(Guid id) {
-            var book = dbContext.Books.Find(id);
+        public IActionResult DeleteBook(Guid id)
+        {
+            var book = dbContext.Set<Book>().Find(id); // Use Set<Book>() instead of Books
             if (book is null)
             {
                 return NotFound();
             }
-            dbContext.Books.Remove(book);
+            dbContext.Set<Book>().Remove(book); // Use Set<Book>() instead of Books
             dbContext.SaveChanges();
             return Ok();
         }
